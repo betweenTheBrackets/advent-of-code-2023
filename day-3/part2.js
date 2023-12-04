@@ -18,19 +18,19 @@ function main() {
 
     row = 0
     let col = 0
-    let result = 0
+    let gears = {}
 
     while (row < map.length) {
         let num
-        let shouldCount = false
+        let shouldCountPart = { shouldCount: false }
 
         while (col < map[row].length) {
             if (!isNaN(map[row][col])) {
                 // it's a number - process it
-                if (!shouldCount) {
+                if (!shouldCountPart.shouldCount) {
                     // once it's set to true, leave it like that
                     // until the number if finished processing
-                    shouldCount = shouldCountPartNumber(map, row, col)
+                    shouldCountPart = shouldCountPartNumber(map, row, col)
                 }
 
                 if (num !== undefined) {
@@ -43,9 +43,13 @@ function main() {
             } else {
                 if (num !== undefined) {
                     // number complete
-                    if (shouldCount) {
-                        result += parseInt(num)
-                        shouldCount = false
+                    if (shouldCountPart.shouldCount) {
+                        const gearId = `row${shouldCountPart.gearPosition.row}_col${shouldCountPart.gearPosition.col}`
+                        if (!gears[gearId]) {
+                            gears[gearId] = []
+                        }
+                        gears[gearId].push(parseInt(num))
+                        shouldCountPart = { shouldCount: false }
                     }
 
                     // reset number
@@ -55,15 +59,22 @@ function main() {
             col++
         }
 
-        if (num && shouldCount) {
+        if (num && shouldCountPart.shouldCount) {
             // grab last item
-            // console.log('shouldCount is true', num)
-            result += parseInt(num)
+            const gearId = `row${shouldCountPart.gearPosition.row}_col${shouldCountPart.gearPosition.col}`
+            if (!gears[gearId]) {
+                gears[gearId] = []
+            }
+            gears[gearId].push(parseInt(num))
         }
 
         col = 0
         row++
     }
+
+    const result = Object.keys(gears)
+        .filter((key) => gears[key].length === 2)
+        .reduce((acc, cur) => acc + gears[cur][0] * gears[cur][1], 0)
 
     console.log('result', result)
 }
@@ -73,7 +84,7 @@ function shouldCountPartNumber(map, row, col) {
         map[curRow] &&
         map[curRow][curCol] &&
         isNaN(map[curRow][curCol]) &&
-        map[curRow][curCol] !== '.'
+        map[curRow][curCol] === '*'
 
     // check clockwise starting with above
     let curRow = row,
@@ -82,50 +93,50 @@ function shouldCountPartNumber(map, row, col) {
     curRow -= 1
 
     if (isSpecialCharacter()) {
-        return true
+        return { shouldCount: true, gearPosition: { row: curRow, col: curCol } }
     }
 
     curCol += 1
 
     if (isSpecialCharacter()) {
-        return true
+        return { shouldCount: true, gearPosition: { row: curRow, col: curCol } }
     }
 
     curRow += 1
 
     if (isSpecialCharacter()) {
-        return true
+        return { shouldCount: true, gearPosition: { row: curRow, col: curCol } }
     }
 
     curRow += 1
 
     if (isSpecialCharacter()) {
-        return true
+        return { shouldCount: true, gearPosition: { row: curRow, col: curCol } }
     }
 
     curCol -= 1
 
     if (isSpecialCharacter()) {
-        return true
+        return { shouldCount: true, gearPosition: { row: curRow, col: curCol } }
     }
 
     curCol -= 1
 
     if (isSpecialCharacter()) {
-        return true
+        return { shouldCount: true, gearPosition: { row: curRow, col: curCol } }
     }
 
     curRow -= 1
 
     if (isSpecialCharacter()) {
-        return true
+        return { shouldCount: true, gearPosition: { row: curRow, col: curCol } }
     }
 
     curRow -= 1
 
     if (isSpecialCharacter()) {
-        return true
+        return { shouldCount: true, gearPosition: { row: curRow, col: curCol } }
     }
 
-    return false
+    return { shouldCount: false }
 }
