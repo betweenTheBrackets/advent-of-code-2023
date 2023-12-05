@@ -8,7 +8,7 @@ function main() {
 
     const scratchCards = []
 
-    const result = input.split('\n').forEach((card, index) => {
+    input.split('\n').forEach((card, index) => {
         if (!scratchCards[index]) {
             scratchCards[index] = 1
         } else {
